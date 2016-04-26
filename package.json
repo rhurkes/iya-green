@@ -1,0 +1,30 @@
+{
+  "name": "iya-green",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhurkes/iya-green.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rhurkes/iya-green/issues"
+  },
+  "homepage": "https://github.com/rhurkes/iya-green#readme",
+  "devDependencies": {
+    "eslint": "^2.7.0",
+    "eslint-config-airbnb": "^6.2.0",
+    "eslint-plugin-react": "^5.0.1"
+  },
+  "eslintConfig": {
+    "rules": {
+      "comma-dangle": 0
+    },
+    "extends": "airbnb"
+  }
+}

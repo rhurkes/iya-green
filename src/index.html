@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=utf-8>
+	<!--<link href="styles/iya.css" rel="stylesheet">-->
+	<link href="styles/iya.min.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+	<!--<link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>-->
+</head>
+<body>
+	<header>
+		<div class="header-wrapper">
+			<i id="menu-button" class="material-icons">menu</i>
+			<div class="header-title">Iya</div>
+			<div id="status-tray">
+				<div id="tray-clock"></div>
+			</div>
+		</div>
+	</header>
+	<div id="message-overlay"></div>
+	<div id="image-overlay"></div>
+	<div id="main" class="page active">
+		<div class="fake-header"></div>
+		<ul class="page-menu">
+			<li data-page="latest">
+				<i class="material-icons">today</i>
+				<div class="text">
+					<div class="primary">Latest</div>
+					<div class="secondary">View latest image and text products</div>
+				</div>
+			</li>
+			<li data-page="reference">
+				<i class="material-icons">local_library</i>
+				<div class="text">
+					<div class="primary">Reference</div>
+					<div class="secondary">Offline resources</div>
+				</div>
+			</li>
+			<li data-page="events">
+				<i class="material-icons">update</i>
+				<div class="text">
+					<div class="primary">Realtime Events</div>
+					<div class="secondary">Watch stream of realtime events</div>
+				</div>
+			</li>
+			<li data-page="filters">
+				<i class="material-icons">edit</i>
+				<div class="text">
+					<div class="primary">Event Filters</div>
+					<div class="secondary">Change realtime event filters</div>
+				</div>
+			</li>
+			<li data-page="settings">
+				<i class="material-icons">settings</i>
+				<div class="text">
+					<div class="primary">Settings</div>
+					<div class="secondary">Change general Iya settings</div>
+				</div>
+			</li>
+			<li data-page="about">
+				<i class="material-icons">help outline</i>
+				<div class="text">
+					<div class="primary">About</div>
+					<div class="secondary">Iya v0.1.0</div>
+				</div>
+			</li>
+		</ul>
+	</div>
+	<div id="latest" class="page">
+		<div class="fake-header"></div>
+		<ul class="page-menu">
+			<li data-page="spc-outlooks">
+				<i class="material-icons">today</i>
+				<div class="text">
+					<div class="primary">Convective Outlooks</div>
+					<div class="secondary">Storm Prediction Center</div>
+				</div>
+			</li>
+			<li data-page="spc-mds">
+				<i class="material-icons">today</i>
+				<div class="text">
+					<div class="primary">Mesoscale Discussions</div>
+					<div class="secondary">Storm Prediction Center</div>
+				</div>
+			</li>
+			<li>
+				<i class="material-icons">today</i>
+				<div class="text">
+					<div class="primary">Tornado Environment</div>
+					<div class="secondary">Storm Prediction Center</div>
+				</div>
+			</li>
+			<li>
+				<i class="material-icons">today</i>
+				<div class="text">
+					<div class="primary">Visible Satellite</div>
+					<div class="secondary">Storm Prediction Center</div>
+				</div>
+			</li>
+			<li data-page="cod-options">
+				<img src="images/cod_logo.png" class="icon" />
+				<div class="text">
+					<div class="primary">Visible Satellite</div>
+					<div class="secondary">College of DuPage</div>
+				</div>
+			</li>
+		</ul>
+	</div>
+	<div id="reference" class="page">
+		<div class="fake-header"></div>
+		<ul>
+			<li data-type="image" data-src="images/cwas.png" data-text="" data-title="NWS County Warning Areas">
+				<i class="material-icons">local_library</i>
+				<div class="text">
+					<div class="primary">County Warning Areas</div>
+				</div>
+			</li>
+			<li data-type="image" data-src="images/700Temps.png" data-text="" data-title="700mb Temps &amp; Cap">
+				<i class="material-icons">local_library</i>
+				<div class="text">
+					<div class="primary">700mb Temps</div>
+				</div>
+			</li>
+			<li data-type="image" data-src="images/ks-regions.jpg" data-text="" data-title="Kansas Ecoregions">
+				<i class="material-icons">local_library</i>
+				<div class="text">
+					<div class="primary">Kansas Ecoregions</div>
+				</div>
+			</li>
+		</ul>
+	</div>
+	<div id="events" class="page">
+		<div class="fake-header"></div>
+		<ul></ul>
+	</div>
+	<div id="filters" class="page">
+		<div class="fake-header"></div>
+	</div>
+	<div id="settings" class="page">
+		<div class="fake-header"></div>
+		<ul>
+			<li>
+				<div class="text">
+					<div class="primary">Roaming Location</div>
+					<div class="secondary">Controls whether GPS position is used, or a static value (such as your home)</div>
+				</div>
+				<div class="onoffswitch">
+					<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="roamingSwitch" checked>
+					<label class="onoffswitch-label" for="roamingSwitch"></label>
+				</div>
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Location</div>
+				</div>
+				<input type="text" />
+				<input type="text" />
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Text to Speech</div>
+				</div>
+				<div class="onoffswitch">
+					<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="speechSwitch" checked>
+					<label class="onoffswitch-label" for="speechSwitch"></label>
+				</div>
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Display Zulu Time</div>
+				</div>
+				<div class="onoffswitch">
+					<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="clockSwitch" checked>
+					<label class="onoffswitch-label" for="clockSwitch"></label>
+				</div>
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Audio Notifications</div>
+				</div>
+				<div class="onoffswitch">
+					<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="audioNotificationSwitch" checked>
+					<label class="onoffswitch-label" for="audioNotificationSwitch"></label>
+				</div>
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Event Processing</div>
+					<div class="secondary">Toggle this to pause network activity</div>
+				</div>
+				<div class="onoffswitch">
+					<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="eventSwitch" checked>
+					<label class="onoffswitch-label" for="eventSwitch"></label>
+				</div>
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Reset Filters</div>
+					<div class="secondary">Reset filters to their default values</div>
+				</div>
+			</li>
+		</ul>
+	</div>
+	<div id="about" class="page">
+		<div class="fake-header"></div>
+		<div class="about-wrapper">
+			<p>Iya is an SPA (single page app) for quickly viewing specific weather information and following streams of weather bulletins from official sources. Since it is a web app, it can be used on iOS, Android, OSX, Windows, Linux - as long as you have a relatively recent web browser, Iya will work.</p>
+			<p>Supported browsers: Chrome, Firefox, IE10+</p>
+			<p>For a quick introduction to Iya and how to use it, please watch the short (2 minute) video below:</p>
+			<p id="about-video" style="text-align:center;"></p>
+			<p style="font-style:italic; color:#999; font-size: 12px;">'Iya' is a term from Lakota mythology that represents a storm monster responsible for tornadoes, hurricanes, blizzards, etc.</p>
+		</div>
+	</div>
+	<div id="spc-mds" class="page">
+		<div class="fake-header"></div>
+		<img src="http://www.spc.noaa.gov/products/md/validmd.png" />
+	</div>
+	<div id="spc-outlooks" class="page">
+		<div class="fake-header"></div>
+		<ul>
+			<li>
+				<div class="text">
+					<div class="primary">Day 1</div>
+					<div class="secondary">TODO</div>
+					<div class="secondary">TODO</div>
+				</div>
+				<img src="http://www.spc.noaa.gov/products/outlook/day1otlk_sm.gif" />
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Day 2</div>
+					<div class="secondary">TODO</div>
+					<div class="secondary">TODO</div>
+				</div>
+				<img src="http://www.spc.noaa.gov/products/outlook/day2otlk_sm.gif" />
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Day 3</div>
+					<div class="secondary">TODO</div>
+					<div class="secondary">TODO</div>
+				</div>
+				<img src="http://www.spc.noaa.gov/products/outlook/day3otlk_sm.gif" />
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Day 4-8</div>
+					<div class="secondary">TODO</div>
+					<div class="secondary">TODO</div>
+				</div>
+				<img src="http://www.spc.noaa.gov/products/exper/day4-8/day48prob_small.gif" />
+			</li>
+		</ul>
+	</div>
+	<div id="cod-options" class="page">
+		<div class="fake-header"></div>
+		<ul class="page-menu">
+			<li>
+				<div class="text">
+					<div class="primary">Scale</div>
+				</div>
+				<div>
+					<select id="cod-scale">
+						<option value="hemisphere" disabled>Hemisphere</option>
+						<option value="region" disabled>Region</option>
+						<option value="2km" disabled>2 km</option>
+						<option value="1km" selected>1 km</option>
+					</select>
+				</div>
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Type</div>
+				</div>
+				<div>
+					<select id="cod-type">
+						<option value="vis" selected>Visible Satellite</option>
+						<option value="ir" disabled>Infrared</option>
+						<option value="wv" disabled>Water Vapor</option>
+						<option value="rad">Radar</option>
+					</select>
+				</div>
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Region</div>
+				</div>
+				<div>
+					<select id="cod-1kmregion">
+						<option disabled>--- North Central ---</option>
+						<option value="S_Manitoba">S Manitoba</option>
+						<option value="Ontario">Ontario</option>
+						<option value="SW_Ontario">SW Ontario</option>
+						<option value="Saskatchewan">Saskatchewan</option>
+						<option value="North_Dakota">North Dakota</option>
+						<option value="South_Dakota">South Dakota</option>
+						<option value="Nebraska">Nebraska</option>
+						<option value="Siouxland">Siouxland</option>
+						<option value="Wyoming">Wyoming</option>
+						<option value="Clayton">Clayton</option>
+						<option value="Colorado">Colorado</option>
+						<option value="Julesburg">Julesburg</option>
+						<option disabled>--- South Central ---</option>
+						<option value="Kansas" selected>Kansas</option>
+						<option value="W_Kansas">W Kansas</option>
+						<option value="Panhandle">Panhandle</option>
+						<option value="Oklahoma">Oklahoma</option>
+						<option value="N_Texas">N Texas</option>
+						<option value="NE_Texas">NE Texas</option>
+						<option value="E_Texas">E Texas</option>
+						<option value="SE_Texas">SE Texas</option>
+						<option value="S_Texas">S Texas</option>
+						<option value="W_Texas">W Texas</option>
+						<option disabled>--- Midwest ---</option>
+						<option value="Minnesota">Minnesota</option>
+						<option value="Iowa">Iowa</option>
+						<option value="Missouri">Missouri</option>
+						<option value="Wisconsin">Wisconsin</option>
+						<option value="N_Illinois">N Illinois</option>
+						<option value="S_Illinois">S Illinois</option>
+						<option value="Superior">Superior</option>
+						<option value="Michigan">Michigan</option>
+						<option value="C_Illinois">Illinois (Central)</option>
+						<option disabled>--- Southeast ---</option>
+						<option value="Arkansas">Arkansas</option>
+						<option value="Louisiana">Louisiana</option>
+						<option value="Mississippi">Mississippi</option>
+						<option value="Alabama">Alabama</option>
+						<option value="Georgia">Georgia</option>
+						<option value="Florida">Florida</option>
+						<option value="S_Florida">S Florida</option>
+						<option value="Carolinas">Carolinas</option>
+						<option value="Carribbean">Carribbean</option>
+						<option disabled>--- Northeast ---</option>
+						<option value="Indiana_Ohio">Indiana/Ohio</option>
+						<option value="Maine">Maine</option>
+						<option value="New_England">New England</option>
+						<option value="New_York">NewYork</option>
+						<option value="Newfy">Newfy</option>
+						<option value="Quebec">Quebec</option>
+						<option value="Virginias">Virginias</option>
+						<option value="Erie_Ontario">Erie/Ontario</option>
+						<option value="KY_Tenn">Kentucky/Tennessee</option>
+						<option value="LongIsland">Long Island NY</option>
+						<option value="NJ_Penn">New Jersey/Pennsylvania</option>
+						<option value="WestVirginia">West Virginia</option>
+						<option disabled>--- West ---</option>
+						<option value="Alberta">Alberta</option>
+						<option value="S_Alberta">S Alberta</option>
+						<option value="B_Columbia">British Columbia</option>
+						<option value="W_B_Columbia">West British Columbia</option>
+						<option value="Washington">Washington</option>
+						<option value="Oregon">Oregon</option>
+						<option value="W_Montana">W Montana</option>
+						<option value="E_Montana">E Montana</option>
+						<option value="N_California">N California</option>
+						<option value="SE_Cali">SE California</option>
+						<option value="S_California">S California</option>
+						<option value="Nevada">Nevada</option>
+						<option value="S_Idaho">S Idaho</option>
+						<option value="Utah">Utah</option>
+						<option value="N_Arizona">N Arizona</option>
+						<option value="S_Arizona">S Arizona</option>
+						<option value="New_Mexico">New Mexico</option>
+					</select>
+				</div>
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Number of images</div>
+					<div class="secondary">Latest image</div>
+				</div>
+				<input id="cod-count" max="12" min="1" class="slider" type="range" value=1>
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Automatic Updates</div>
+					<div class="secondary"></div>
+				</div>
+				<div class="switch">
+					<input id="cod-update" type="checkbox">
+					<label class="onoffswitch-label" for="cod-update"></label>
+				</div>
+			</li>
+			<li>
+				<div class="text">
+					<div class="primary">Notify on New Data</div>
+					<div class="secondary"></div>
+				</div>
+				<div class="switch">
+					<input id="cod-notify" type="checkbox">
+					<label class="onoffswitch-label" for="cod-notify"></label>
+				</div>
+			</li>
+			<li>
+				<button id="cod-view">View Image(s)</button>
+			</li>
+		</ul>
+	</div>
+	<script src="lib/iya.js"></script>
+	<script src="lib/iem.js"></script>
+	<!--<script src="lib/cod.js"></script>-->
+</body>
+</html>
