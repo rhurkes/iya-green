@@ -2,12 +2,13 @@
 <html>
 <head>
 	<meta charset=utf-8>
-	<meta name="viewport" content="width=device-width; initial-scale = 1.0; maximum-scale=1.0; user-scalable=no" />
+	<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no">
 	<!--<link href="styles/iya.css" rel="stylesheet">-->
 	<link href="styles/iya.min.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-	<!--<link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>-->
+	<link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+	<script src="lib/lodash.min.js"></script>
 </head>
 <body>
 	<header>
@@ -52,13 +53,13 @@
 					<div class="secondary">Change realtime event filters</div>
 				</div>
 			</li>
-			<li data-page="settings">
+			<!--<li data-page="settings">
 				<i class="material-icons">settings</i>
 				<div class="text">
 					<div class="primary">Settings</div>
 					<div class="secondary">Change general Iya settings</div>
 				</div>
-			</li>
+			</li>-->
 			<li data-page="about">
 				<i class="material-icons">help outline</i>
 				<div class="text">
@@ -71,21 +72,28 @@
 	<div id="latest" class="page">
 		<div class="fake-header"></div>
 		<ul class="page-menu">
-			<li data-page="spc-outlooks">
+			<li data-page="spc-outlooks" data-title="SPC Outlooks">
 				<i class="material-icons">today</i>
 				<div class="text">
 					<div class="primary">Convective Outlooks</div>
 					<div class="secondary">Storm Prediction Center</div>
 				</div>
 			</li>
-			<li data-page="spc-mds">
+			<li data-page="spc-mds" data-title="SPC MDs">
 				<i class="material-icons">today</i>
 				<div class="text">
 					<div class="primary">Mesoscale Discussions</div>
 					<div class="secondary">Storm Prediction Center</div>
 				</div>
 			</li>
-			<li>
+			<li data-page="spc-watches" data-title="SPC Watches">
+				<i class="material-icons">today</i>
+				<div class="text">
+					<div class="primary">Watches</div>
+					<div class="secondary">Storm Prediction Center</div>
+				</div>
+			</li>
+			<!--<li>
 				<i class="material-icons">today</i>
 				<div class="text">
 					<div class="primary">Tornado Environment</div>
@@ -105,7 +113,7 @@
 					<div class="primary">Visible Satellite</div>
 					<div class="secondary">College of DuPage</div>
 				</div>
-			</li>
+			</li>-->
 		</ul>
 	</div>
 	<div id="reference" class="page">
@@ -138,7 +146,7 @@
 	<div id="filters" class="page">
 		<div class="fake-header"></div>
 	</div>
-	<div id="settings" class="page">
+	<!--<div id="settings" class="page">
 		<div class="fake-header"></div>
 		<ul>
 			<li>
@@ -202,14 +210,15 @@
 				</div>
 			</li>
 		</ul>
-	</div>
+	</div>-->
 	<div id="about" class="page">
 		<div class="fake-header"></div>
 		<div class="about-wrapper">
+			<p>Version 0.1.0</p>
 			<p>Iya is an SPA (single page app) for quickly viewing specific weather information and following streams of weather bulletins from official sources. Since it is a web app, it can be used on iOS, Android, OSX, Windows, Linux - as long as you have a relatively recent web browser, Iya will work.</p>
 			<p>Supported browsers: Chrome, Firefox, IE10+</p>
-			<p>For a quick introduction to Iya and how to use it, please watch the short (2 minute) video below:</p>
-			<p id="about-video" style="text-align:center;"></p>
+			<!--<p>For a quick introduction to Iya and how to use it, please watch the short (2 minute) video below:</p>
+			<p id="about-video" style="text-align:center;"></p>-->
 			<p style="font-style:italic; color:#999; font-size: 12px;">'Iya' is a term from Lakota mythology that represents a storm monster responsible for tornadoes, hurricanes, blizzards, etc.</p>
 		</div>
 	</div>
@@ -217,44 +226,48 @@
 		<div class="fake-header"></div>
 		<img src="http://www.spc.noaa.gov/products/md/validmd.png" />
 	</div>
+	<div id="spc-watches" class="page">
+		<div class="fake-header"></div>
+		<img src="http://www.spc.noaa.gov/products/watch/validww.png" />
+	</div>
 	<div id="spc-outlooks" class="page">
 		<div class="fake-header"></div>
 		<ul>
 			<li>
 				<div class="text">
 					<div class="primary">Day 1</div>
-					<div class="secondary">TODO</div>
-					<div class="secondary">TODO</div>
+					<div class="secondary"></div>
+					<div class="secondary"></div>
 				</div>
 				<img src="http://www.spc.noaa.gov/products/outlook/day1otlk_sm.gif" />
 			</li>
 			<li>
 				<div class="text">
 					<div class="primary">Day 2</div>
-					<div class="secondary">TODO</div>
-					<div class="secondary">TODO</div>
+					<div class="secondary"></div>
+					<div class="secondary"></div>
 				</div>
 				<img src="http://www.spc.noaa.gov/products/outlook/day2otlk_sm.gif" />
 			</li>
 			<li>
 				<div class="text">
 					<div class="primary">Day 3</div>
-					<div class="secondary">TODO</div>
-					<div class="secondary">TODO</div>
+					<div class="secondary"></div>
+					<div class="secondary"></div>
 				</div>
 				<img src="http://www.spc.noaa.gov/products/outlook/day3otlk_sm.gif" />
 			</li>
 			<li>
 				<div class="text">
 					<div class="primary">Day 4-8</div>
-					<div class="secondary">TODO</div>
-					<div class="secondary">TODO</div>
+					<div class="secondary"></div>
+					<div class="secondary"></div>
 				</div>
 				<img src="http://www.spc.noaa.gov/products/exper/day4-8/day48prob_small.gif" />
 			</li>
 		</ul>
 	</div>
-	<div id="cod-options" class="page">
+	<!--<div id="cod-options" class="page">
 		<div class="fake-header"></div>
 		<ul class="page-menu">
 			<li>
@@ -398,7 +411,7 @@
 				<button id="cod-view">View Image(s)</button>
 			</li>
 		</ul>
-	</div>
+	</div>-->
 	<script src="lib/iya.js"></script>
 	<script src="lib/iem.js"></script>
 	<!--<script src="lib/cod.js"></script>-->

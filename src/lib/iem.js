@@ -43,6 +43,7 @@ function processEvents(data) {
     }
 
     m.text = getTextFromHtml(m.message).replace(`(${m.code})`, ''); // Process text
+    m.text = m.text.replace(' (View text)', '');
     event.data = m;
     newData.push(event);
   });

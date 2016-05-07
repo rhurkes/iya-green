@@ -170,7 +170,7 @@ body.mobile-portrait .header-title {
   width: 100%;
 }
 .sub-header {
-    color: rgb(73, 87, 94);
+    color: #999;
     margin-left: 10px;
 }
 .material-icons {
@@ -281,7 +281,7 @@ body.mobile-portrait .header-title {
 }
 #events li .secondary {
   line-height: 12px;
-  font-size: 10px;
+  font-size: 12px;
 }
 #events li .time {
   margin-left: 16px;
@@ -311,6 +311,7 @@ body.mobile-portrait .header-title {
   padding: 0;
   text-overflow: ellipsis;
   overflow: hidden;
+  font-family: 'Inconsolata';
 }
 
 button {
@@ -370,6 +371,15 @@ li .icon {
   padding: 8px;
 }
 #spc-mds > img {
+  max-width: 100%;
+  margin-top: 60px;
+}
+
+/* SPC Watches */
+#spc-watches {
+  padding: 8px;
+}
+#spc-watches > img {
   max-width: 100%;
   margin-top: 60px;
 }
@@ -444,7 +454,7 @@ ol.menu, .menu ol, .menu li {
 /* Slider */
 .menu .slider {
   position: absolute;
-  right: 0px;
+  right: 8px;
   top: 28px;
   cursor: pointer;
 }

@@ -770,7 +770,10 @@ var menu = {
     minTemplate: "No time filter",
     maxTemplate: "",
     template: "Last {value} minutes"
-  }, {
+  }]
+};
+
+/*, {
     id: "source",
     text: "Event Source",
     subtext: "",
@@ -866,8 +869,7 @@ var menu = {
         }
       }
     ]
-  }]
-};
+  }*/
 
 function renderMenu(menuModel, position, updateFunction) {
   function buildElement(tag, options) {
@@ -960,6 +962,10 @@ function renderMenu(menuModel, position, updateFunction) {
         });
         slider.type = 'range';
         slider.addEventListener('change', function() {
+          handleSliderChange(item, slider.value, itemSubtext);
+          if (updateFunction) updateFunction();
+        });
+        slider.addEventListener('input', function() {
           handleSliderChange(item, slider.value, itemSubtext);
           if (updateFunction) updateFunction();
         });
@@ -1149,9 +1155,7 @@ const supportsTTS = typeof window.speechSynthesis === 'object';
 // DEFAULTS
 const ttsPitch = 1;
 const ttsRate = 1;
-const hailAlertThreshold = 1.75;
-
-// TODO any update to a setting should be saved to localStorage
+const hailAlertThreshold = 2;
 
 // ELEMENTS
 const messageOverlayElement = document.getElementById('message-overlay');
@@ -1163,7 +1167,6 @@ const clockElement = document.getElementById('tray-clock');
 
 // GLOBALS
 let filteredCwas = [];
-let filters = {};
 const iya = {};
 
 // SOUNDS
@@ -1201,18 +1204,18 @@ function filterEvent(event) {
     filtered = whitelist.indexOf(event.data.office.toLowerCase()) === -1;
   }
 
-  // Time filter - WORKING
-  if (filters.time.value &&
-    ((new Date().getTime() - new Date(event.isoTime).getTime()) / 1000 / 60) > filters.time.value) {
+  // Time filter
+  if (timeFilters.value &&
+    ((new Date().getTime() - new Date(event.isoTime).getTime()) / 1000 / 60) > timeFilters.value) {
     filtered = true;
   }
 
   // Source filters
-  filters.source.children.forEach(function (filter) {
+  /*sourceFilters.children.forEach(function (filter) {
     if (filter.value && filter.source === event.source) {
       filtered = true;
     }
-  });
+  });*/
 
   // Product filters
   /*filters.product.children.forEach(function (filter) {
@@ -1257,15 +1260,17 @@ function lsrTTSReplace(text) {
 // TODO Either add a ton of error handling here, or try/catch it
 function processTTSEvents(events) {
   const ttsLines = [];
-  const spcOutlooks = [];
-  events.forEach((event) => {
-    // console.log(event);
+  let notify = false;
+  events.forEach(event => {
     if (!event.data || !event.data.text) return;
     let text = event.data.text;
-    // SPC Outlook
+    
     if (event.data.code === 'PTS') {
-      console.log(event.data);
-      spcOutlooks.push(event.data);
+      notify = true;
+    } else if (event.data.code === 'SWO' && event.data.office === 'MCD') {
+      // SPC Mesoscale Discussion
+      ttsLines.push(text);
+      notify = true;
     } else if (event.data.code === 'TOR') {
       const cwa = cwas.find((x) => x.code === event.data.office);
       if (cwa) {
@@ -1287,11 +1292,10 @@ function processTTSEvents(events) {
         }
         let newText = `NWS ${cwa.name} has issued a tornado warning for ${counties} counties.`;
         newText += ` Source: ${source}. ${description}`;
+        notify = true;
         ttsLines.push(newText);
       }
-    }
-    // LSRs
-    if (event.data.code === 'LSR') {
+    } else if (event.data.code === 'LSR') {
       if (text.indexOf('reports HAIL') > 0) {
         text = text.substring(text.indexOf('['));
         text = text.replace('Co,', 'County,');
@@ -1304,14 +1308,18 @@ function processTTSEvents(events) {
           if (size >= hailAlertThreshold) {
             text = `${text.substring(0, text.indexOf(' reports HAIL'))} reports ${size} inch hail`;
             ttsLines.push(text);
+            notify = true;
           }
         }
       }
     }
   });
 
+  if (notify) {
+    chime.play();
+  }
+  
   // TODO delay between lines
-  chime.play();
   setTimeout(() => {
     ttsLines.forEach((line) => speak(line));
   }, 2000);
@@ -1403,7 +1411,7 @@ function saveSetting(key, value) {
 }
 
 function saveFilters() {
-  localStorage['iya-filters'] = JSON.stringify(filters);
+  localStorage['iya-filters'] = JSON.stringify(menu.filters);
 }
 
 function initializeSettings() {
@@ -1418,7 +1426,7 @@ function initializeSettings() {
 }
 
 // BINDINGS
-document.getElementById('clockSwitch').addEventListener('click', function() {
+/*document.getElementById('clockSwitch').addEventListener('click', function() {
   iya.settings.displayZuluTime = !iya.settings.displayZuluTime;
   processSettings();
 });
@@ -1429,7 +1437,7 @@ document.getElementById('audioNotificationSwitch').addEventListener('click', fun
 document.getElementById('speechSwitch').addEventListener('click', function() {
   iya.settings.textToSpeech = !iya.settings.textToSpeech;
   processSettings();
-});
+});*/
 
 document.body.classList.add('mobile-portrait'); // testing
 
@@ -1440,7 +1448,7 @@ document.getElementById('menu-button').addEventListener('click', function() {
 document.querySelectorAll('ul.page-menu > li').forEach(function(el) {
   if (!el.getAttribute('data-page')) return;
   el.addEventListener('click', function(e) {
-    switchPage(this.getAttribute('data-page'));
+    switchPage(this.getAttribute('data-page'), this.getAttribute('data-title'));
   });
 });
 
@@ -1457,10 +1465,7 @@ document.querySelectorAll('#reference li').forEach(function(el) {
   });
 });
 
-function switchPage(page) {
-  function updateTitle (text) {
-    titleElement.textContent = text;
-  }
+function switchPage(page, title) {
   pageElements.some(function (el) {
     if (el.classList.contains('active')) {
       el.classList.remove('active');
@@ -1472,12 +1477,12 @@ function switchPage(page) {
   document.getElementById(page).classList.add('active');
   titleElement.innerHTML = (page === 'main')
     ? 'Iya'
-    : `Iya <span class="sub-header">${capitalize(page)}</span>`;
+    : `Iya <span class="sub-header">${capitalize(title || page)}</span>`;
   if (page === 'events') processStore();
 
   // Lazy-load YouTube
   if (page === 'about' && !document.querySelectorAll('#about-video iframe').length) {
-    document.querySelectorAll('#about-video')[0].innerHTML = '<iframe src="https://www.youtube.com/embed/kfvxmEuC7bU" frameborder="0" allowfullscreen></iframe>';
+    //document.querySelectorAll('#about-video')[0].innerHTML = '<iframe src="https://www.youtube.com/embed/kfvxmEuC7bU" frameborder="0" allowfullscreen></iframe>';
   }
 
   // Re-process events in case any filters/other changed
@@ -1531,22 +1536,27 @@ iya.store = {
 store = iya.store;  // Reference to make it easier to use
 iya.location = { lat: 44.89, lon: -93.22 }; // NOTE: hardcoding lat/lon for testing
 
-// TODO clean this the fuck up
-// TODO recalculate on menu changes
-// Make easy references to filter configs
 // Load saved filters
 if (typeof localStorage['iya-filters'] !== 'undefined') {
-  filters = JSON.parse(localStorage['iya-filters']);
-} else {
-  menu.filters.forEach(function(filterSection) {
-    filters[filterSection.id] = filterSection;
-  });
+  const storedFilters = JSON.parse(localStorage['iya-filters']);
+  if (storedFilters) {
+    _.merge(menu.filters, storedFilters);
+    // TODO handle missing settings
+  }
 }
+
+renderMenu(menu.filters, document.getElementById('filters'), saveFilters);
 
 var filterableCwas = [];
 let cwaNames = cwas.map((x) => x.code);
-var allcwa = filters.location.children.find((x) => x.id === 'allcwa');
-filters.location.children
+const locationFilters = menu.filters.find(x => x.id === 'location');
+const timeFilters = menu.filters.find(x => x.id === 'time');
+const sourceFilters = menu.filters.find(x => x.id === 'source');
+const productFilters = menu.filters.find(x => x.id === 'product');
+const advancedFilters = menu.filters.find(x => x.id === 'advanced');
+const allcwa = locationFilters.children.find((x) => x.id === 'allcwa');
+
+locationFilters.children
   .find((x) => x.id === 'cwa')
   .children.forEach((x) => filterableCwas.push(x));
 function getWhitelistCwas () {
@@ -1555,16 +1565,13 @@ function getWhitelistCwas () {
   .map((x) => x.id.toLowerCase());
 }
 
-// TODO menu.filters doesn't take into account saved values - need to get filters and menu.filters somewhat normalized
-renderMenu(menu.filters, document.getElementById('filters'), saveFilters);
-
 // Start processing events?
 // TODO check if event processing is on
 // TODO if you flip event processing off, stop this timer
 // TODO configurable event timer
 // TODO max number of events?
 var eventProcessingTimer = setInterval(function() {
-  getIemData();
+  //getIemData();
 }, 1000 * 60);
 
 initializeSettings();
