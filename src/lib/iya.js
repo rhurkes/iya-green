@@ -1171,6 +1171,7 @@ const iya = {};
 
 // SOUNDS
 const chime = new Audio('audio/chime.wav');
+const eas = new Audio('audio/eas.mp3');
 
 // STORE
 const maxEvents = 1000;
@@ -1261,12 +1262,17 @@ function lsrTTSReplace(text) {
 function processTTSEvents(events) {
   const ttsLines = [];
   let notify = false;
+  const watches = [];
+  let outlookSeen = false;
+  
   events.forEach(event => {
     if (!event.data || !event.data.text) return;
     let text = event.data.text;
     
-    if (event.data.code === 'PTS') {
+    if (event.data.code === 'PTS' && event.data.office === 'DY1' && !outlookSeen) {
+      ttsLines.push('Storm Prediction Center has issued a new day 1 convective outlook');
       notify = true;
+      outlookSeen = true;
     } else if (event.data.code === 'SWO' && event.data.office === 'MCD') {
       // SPC Mesoscale Discussion
       ttsLines.push(text);
@@ -1312,12 +1318,27 @@ function processTTSEvents(events) {
           }
         }
       }
+    } else if (!event.data.product_id && event.data.message.indexOf('http://www.spc.noaa.gov/products/watch') > -1
+      && event.data.message.indexOf('Storm Prediction Center issues') > -1) {
+      text = text.replace('TSTM', 'THUNDERSTORM');
+      text = text.replace('watchtill', 'watch till');
+      text = text.replace('(Watch Quickview)', '');
+      watches.push(text);
     }
   });
 
-  if (notify) {
-    chime.play();
+  let watchDelay = 0;
+  if (watches.length) {
+    watchDelay = 24 * 1000;
+    eas.play();
   }
+  setTimeout(() => {
+    watches.forEach(watch => {
+      setTimeout(() => speak(watch), 3000);
+    });
+  }, watchDelay);
+  
+  if (notify) chime.play();
   
   // TODO delay between lines
   setTimeout(() => {
@@ -1571,7 +1592,7 @@ function getWhitelistCwas () {
 // TODO configurable event timer
 // TODO max number of events?
 var eventProcessingTimer = setInterval(function() {
-  //getIemData();
+  getIemData();
 }, 1000 * 60);
 
 initializeSettings();

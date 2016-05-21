@@ -25,6 +25,7 @@ function processEvents(data) {
       if (m.message.indexOf('pilot report') > -1) return; // Ignore pilot reports
       if (m.message.indexOf('Climate Report') > -1) return; // Ignore climate reports
       if (m.message.indexOf('issues SIGMET') > -1) return;  // Ignore issues SIGMET
+      if (m.message.indexOf('ASOS  reports') > -1) return; // Ignore ASOS reports
     } else {
       // Parse out WFO, code, etc.
       const product = m.product_id.split('-');
