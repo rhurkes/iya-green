@@ -1,1 +1,1 @@
-cp ../src/* /var/www/wx/iya
+cp -r ../src/* /var/www/wx/iya
