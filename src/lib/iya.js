@@ -21,7 +21,9 @@ const whitelistInit = function (element) {
 };
 
 const setWhitelistText = function () {
-  whitelistListElement.querySelector('.subtext').textContent = `[ ${getWhitelistCwas().join(', ')} ]`;
+  const wlCwas = getWhitelistCwas();
+  const text = wlCwas.length ? `[ ${wlCwas.join(', ')} ]` : 'No CWAs selected';
+  whitelistListElement.querySelector('.subtext').textContent = text;
 };
 
 var cwas = [
