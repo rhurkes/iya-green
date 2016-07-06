@@ -1453,14 +1453,14 @@ function renderEvent(event) {
   })
 }
 
-let defaultSettings = {
+const defaultSettings = JSON.stringify({
   displayZuluTime: true,
   audioNotification: true,
   textToSpeech: true,
   events: {
     filters: {}
   }
-};
+});
 
 function processSettings() {
   localStorage.settings = JSON.stringify(iya.settings);
@@ -1480,8 +1480,8 @@ function saveFilters() {
 function initializeSettings() {
   iya.settings = iya.settings || {};
   if (localStorage.settings === undefined) {
-    iya.settings = defaultSettings;
-    localStorage.settings = JSON.stringify(defaultSettings);
+    iya.settings = JSON.parse(defaultSettings);
+    localStorage.settings = defaultSettings;
   } else {
     iya.settings = JSON.parse(localStorage.settings);
   }
@@ -1501,8 +1501,10 @@ document.getElementById('speechSwitch').addEventListener('click', function() {
   iya.settings.textToSpeech = !iya.settings.textToSpeech;
   processSettings();
 });*/
-
-document.body.classList.add('mobile-portrait'); // testing
+document.getElementById('restoreDefaults').addEventListener('click', function () {
+  localStorage.clear();
+  iya.settings = JSON.parse(defaultSettings);
+});
 
 // BINDINGS
 document.getElementById('menu-button').addEventListener('click', function() {
