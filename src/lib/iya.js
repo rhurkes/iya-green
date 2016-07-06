@@ -1214,7 +1214,7 @@ let filteredCwas = [];
 const iya = {};
 
 // SOUNDS
-const chime = new Audio('audio/chime.wav');
+const chime = new Audio('audio/chime.mp3');
 const eas = new Audio('audio/eas.mp3');
 
 // STORE
