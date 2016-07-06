@@ -1445,6 +1445,8 @@ function renderEvent(event) {
 
   var textHtml = `<div class="text secondary">${data.text}</div>`;
   var timeHtml = `<div class="text secondary time">${formatTsAgo(event.isoTime)}</div>`;
+  // Hacky, but shouldn't be an issue when we replace IEM as a feed
+  data.message = data.message.replace('<a href=', '<a target="_blank" href=')
   li.attributes['data-message'] = data.message;
   li.attributes['data-product'] = data.product_id;
   li.innerHTML = badgeHtml + textHtml + timeHtml;
