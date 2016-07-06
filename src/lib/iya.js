@@ -1,3 +1,29 @@
+// Scoping placeholders
+let whitelistListElement;
+
+const resetCwas = function () {
+  if (filterableCwas) {
+    filterableCwas.forEach(x => x.value = false);
+    saveFilters();
+    renderMenu(menu.filters, document.getElementById('filters'), saveFilters);
+  }
+};
+
+const showAllCwa = function (element, enabled) {
+  if (!element) return;
+  element.querySelector('.subtext').textContent = enabled
+    ? 'Show all CWA events'
+    : 'Hide all non-whitelist events';
+};
+
+const whitelistInit = function (element) {
+  whitelistListElement = element;
+};
+
+const setWhitelistText = function () {
+  whitelistListElement.querySelector('.subtext').textContent = `[ ${getWhitelistCwas().join(', ')} ]`;
+};
+
 var cwas = [
   { code: 'AFC', name: 'Anchorage', st: 'AK' },
   { code: 'AFG', name: 'Fairbanks', st: 'AK' },
@@ -141,13 +167,20 @@ var menu = {
       template: "Within {value} km"
     }, {
       id: "allcwa",
-      text: "CWA",
-      subtext: "County Warning Area - Show All",
-      value: true
+      text: "CWA - Show All",
+      subtext: "Show all CWA events",
+      value: true,
+      fn: showAllCwa
+    }, {
+      id: "resetcwa",
+      text: "CWA - Reset Whitelist",
+      subtext: "Deselect all whitelist CWAs",
+      fn: resetCwas
     }, {
       id: "cwa",
-      text: "CWA",
-      subtext: "County Warning Area - Individual Whitelist",
+      text: "CWA - Whitelist",
+      subtext: "Display specific CWAs",
+      init: whitelistInit,
       children: [{
         "id": "afc",
         "text": "AFC",
@@ -952,6 +985,7 @@ function renderMenu(menuModel, position, updateFunction) {
         toggle.addEventListener('change', function() {
           item.value = !item.value;
           if (updateFunction) updateFunction();
+          if (item.fn) item.fn(listElement, item.value);
         });
         break;
       case 'number':
@@ -971,6 +1005,10 @@ function renderMenu(menuModel, position, updateFunction) {
         });
         handleSliderChange(item, item.value, itemSubtext);
         break;
+      case 'undefined':
+        // Menus with children won't have a value, treat the ones without children as buttons
+        if (!item.children && item.fn) listElement.addEventListener('click', item.fn);
+        break;
     }
 
     if (Array.isArray(item.children)) {
@@ -984,12 +1022,16 @@ function renderMenu(menuModel, position, updateFunction) {
       }
       e.stopPropagation();
     });
+
+    if (item.init) item.init(listElement);
   }
 
   menuModel.forEach(function(item) {
     createItem(item);
   });
 
+  let existingMenu = position.querySelector('ol.menu');
+  if (existingMenu !== null) position.removeChild(existingMenu);
   position.appendChild(menuRootElement);
 }
 
@@ -1201,8 +1243,8 @@ function filterEvent(event) {
   // Location filters
   // CWAs
   if (event.data.office && !allcwa.value && cwaNames.indexOf(event.data.office) > -1) {
-    const whitelist = getWhitelistCwas();
-    filtered = whitelist.indexOf(event.data.office.toLowerCase()) === -1;
+    const displayCwas = getCwas();
+    filtered = displayCwas.indexOf(event.data.office.toLowerCase()) === -1;
   }
 
   // Time filter
@@ -1244,6 +1286,9 @@ function processStore() {
   // Filter events
   for (let i = store.events.length - 1; i > -1; i--) {
     if (!filterEvent(store.events[i])) {
+      if (supportsTTS && iya.settings.textToSpeech) {
+        processTTSEvent(store.events[i]);
+      }
       renderEvent(store.events[i]);
     }
   }
@@ -1259,73 +1304,72 @@ function lsrTTSReplace(text) {
 }
 
 // TODO Either add a ton of error handling here, or try/catch it
-function processTTSEvents(events) {
+function processTTSEvent(event) {
   const ttsLines = [];
   let notify = false;
   const watches = [];
   let outlookSeen = false;
   
-  events.forEach(event => {
-    if (!event.data || !event.data.text) return;
-    let text = event.data.text;
-    
-    if (event.data.code === 'PTS' && event.data.office === 'DY1' && !outlookSeen) {
-      ttsLines.push('Storm Prediction Center has issued a new day 1 convective outlook');
-      notify = true;
-      outlookSeen = true;
-    } else if (event.data.code === 'SWO' && event.data.office === 'MCD') {
-      // SPC Mesoscale Discussion
-      ttsLines.push(text);
-      notify = true;
-    } else if (event.data.code === 'TOR') {
-      const cwa = cwas.find((x) => x.code === event.data.office);
-      if (cwa) {
-        let counties = text.substring(text.indexOf('] for') + 6);
-        counties = counties.substring(0, counties.indexOf(' ['));
-        const countyList = counties.split(',');
-        if (countyList.length > 1) {
-          countyList.splice(countyList.length - 1, 0, 'and');
-          counties = countyList.join();
-        }
-        let source = text.substring(text.indexOf('[tornado:'));
-        source = source.substring(10, source.indexOf(','));
-        let description = text.substring(text.indexOf('*') + 1);
-        const timeMatch = description.match(/AT (.*) [AP]M/);
-        if (timeMatch && timeMatch.length === 2) {
-          const firstPart = timeMatch[1].length === 3 ? 1 : 2;
-          const newTime = `At ${timeMatch[1].slice(0, firstPart)}:${timeMatch[1].slice(firstPart)}`;
-          description = description.replace(timeMatch[0], newTime);
-        }
-        let newText = `NWS ${cwa.name} has issued a tornado warning for ${counties} counties.`;
-        newText += ` Source: ${source}. ${description}`;
-        notify = true;
-        ttsLines.push(newText);
+  if (event.processed || !event.data || !event.data.text) return;
+  let text = event.data.text;
+  event.processed = true;
+  
+  if (event.data.code === 'PTS' && event.data.office === 'DY1' && !outlookSeen) {
+    ttsLines.push('Storm Prediction Center has issued a new day 1 convective outlook');
+    notify = true;
+    outlookSeen = true;
+  } else if (event.data.code === 'SWO' && event.data.office === 'MCD') {
+    // SPC Mesoscale Discussion
+    ttsLines.push(text);
+    notify = true;
+  } else if (event.data.code === 'TOR') {
+    const cwa = cwas.find((x) => x.code === event.data.office);
+    if (cwa) {
+      let counties = text.substring(text.indexOf('] for') + 6);
+      counties = counties.substring(0, counties.indexOf(' ['));
+      const countyList = counties.split(',');
+      if (countyList.length > 1) {
+        countyList.splice(countyList.length - 1, 0, 'and');
+        counties = countyList.join();
       }
-    } else if (event.data.code === 'LSR') {
-      if (text.indexOf('reports HAIL') > 0) {
-        text = text.substring(text.indexOf('['));
-        text = text.replace('Co,', 'County,');
-        text = lsrTTSReplace(text);
-        const matches = text.match(/\(.*\)/);
-        if (matches && matches.length) {
-          let size = matches[0].replace('(E', '').replace(')', '')
-            .replace(' INCH', '').replace('.00', '');
-          size = parseFloat(size);
-          if (size >= hailAlertThreshold) {
-            text = `${text.substring(0, text.indexOf(' reports HAIL'))} reports ${size} inch hail`;
-            ttsLines.push(text);
-            notify = true;
-          }
-        }
+      let source = text.substring(text.indexOf('[tornado:'));
+      source = source.substring(10, source.indexOf(','));
+      let description = text.substring(text.indexOf('*') + 1);
+      const timeMatch = description.match(/AT (.*) [AP]M/);
+      if (timeMatch && timeMatch.length === 2) {
+        const firstPart = timeMatch[1].length === 3 ? 1 : 2;
+        const newTime = `At ${timeMatch[1].slice(0, firstPart)}:${timeMatch[1].slice(firstPart)}`;
+        description = description.replace(timeMatch[0], newTime);
       }
-    } else if (!event.data.product_id && event.data.message.indexOf('http://www.spc.noaa.gov/products/watch') > -1
-      && event.data.message.indexOf('Storm Prediction Center issues') > -1) {
-      text = text.replace('TSTM', 'THUNDERSTORM');
-      text = text.replace('watchtill', 'watch till');
-      text = text.replace('(Watch Quickview)', '');
-      watches.push(text);
+      let newText = `NWS ${cwa.name} has issued a tornado warning for ${counties} counties.`;
+      newText += ` Source: ${source}. ${description}`;
+      notify = true;
+      ttsLines.push(newText);
     }
-  });
+  } else if (event.data.code === 'LSR') {
+    if (text.indexOf('reports HAIL') > 0) {
+      text = text.substring(text.indexOf('['));
+      text = text.replace('Co,', 'County,');
+      text = lsrTTSReplace(text);
+      const matches = text.match(/\(.*\)/);
+      if (matches && matches.length) {
+        let size = matches[0].replace('(E', '').replace(')', '')
+          .replace(' INCH', '').replace('.00', '');
+        size = parseFloat(size);
+        if (size >= hailAlertThreshold) {
+          text = `${text.substring(0, text.indexOf(' reports HAIL'))} reports ${size} inch hail`;
+          ttsLines.push(text);
+          notify = true;
+        }
+      }
+    }
+  } else if (!event.data.product_id && event.data.message.indexOf('http://www.spc.noaa.gov/products/watch') > -1
+    && event.data.message.indexOf('Storm Prediction Center issues') > -1) {
+    text = text.replace('TSTM', 'THUNDERSTORM');
+    text = text.replace('watchtill', 'watch till');
+    text = text.replace('(Watch Quickview)', '');
+    watches.push(text);
+  }
 
   let watchDelay = 0;
   if (watches.length) {
@@ -1349,9 +1393,6 @@ function processTTSEvents(events) {
 // TODO are stores only holding events, or other things?
 function updateStore(events) {
   if (!events || !events.length) return;
-  if (supportsTTS && iya.settings.textToSpeech) {
-    processTTSEvents(events);
-  }
   store.events = store.events.concat(events);
   processStore();
 }
@@ -1433,6 +1474,7 @@ function saveSetting(key, value) {
 
 function saveFilters() {
   localStorage['iya-filters'] = JSON.stringify(menu.filters);
+  setWhitelistText();
 }
 
 function initializeSettings() {
@@ -1500,11 +1542,6 @@ function switchPage(page, title) {
     ? 'Iya'
     : `Iya <span class="sub-header">${capitalize(title || page)}</span>`;
   if (page === 'events') processStore();
-
-  // Lazy-load YouTube
-  if (page === 'about' && !document.querySelectorAll('#about-video iframe').length) {
-    //document.querySelectorAll('#about-video')[0].innerHTML = '<iframe src="https://www.youtube.com/embed/kfvxmEuC7bU" frameborder="0" allowfullscreen></iframe>';
-  }
 
   // Re-process events in case any filters/other changed
   if (page === 'events') processStore();
@@ -1580,11 +1617,18 @@ const allcwa = locationFilters.children.find((x) => x.id === 'allcwa');
 locationFilters.children
   .find((x) => x.id === 'cwa')
   .children.forEach((x) => filterableCwas.push(x));
-function getWhitelistCwas () {
-  return allcwa.value ? [] : filterableCwas
-  .filter((x) => x.value)
-  .map((x) => x.id.toLowerCase());
-}
+
+const getWhitelistCwas = function () {
+  return filterableCwas.filter((x) => x.value)
+    .map((x) => x.id.toLowerCase());
+};
+
+const getCwas = function () {
+  return allcwa.value ? [] : getWhitelistCwas();
+};
+
+// Set subtext for initial whitelist CWAs
+setWhitelistText();
 
 // Start processing events?
 // TODO check if event processing is on
